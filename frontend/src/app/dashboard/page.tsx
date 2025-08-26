@@ -44,6 +44,47 @@ import {
     useTasks,
 } from "@/hooks/use-api";
 import { formatDate } from "@/lib/utils";
+import { Category, Course, Task } from "@/types/task";
+
+// Custom badge styling functions to match task cards
+const getPriorityColor = (priority: string) => {
+    switch (priority) {
+        case "HIGH":
+            return "bg-red-600 text-white";
+        case "MEDIUM":
+            return "bg-purple-600 text-white";
+        case "LOW":
+            return "bg-blue-600 text-white";
+        default:
+            return "bg-gray-600 text-white";
+    }
+};
+
+const getStatusColor = (status: string) => {
+    switch (status) {
+        case "COMPLETED":
+            return "bg-green-100 text-green-700 border-green-200";
+        case "IN_PROGRESS":
+            return "bg-blue-100 text-blue-700 border-blue-200";
+        case "PENDING":
+            return "bg-orange-100 text-orange-700 border-orange-200";
+        default:
+            return "bg-gray-100 text-gray-700 border-gray-200";
+    }
+};
+
+const getStatusDotColor = (status: string) => {
+    switch (status) {
+        case "COMPLETED":
+            return "bg-green-500";
+        case "IN_PROGRESS":
+            return "bg-blue-500";
+        case "PENDING":
+            return "bg-orange-500";
+        default:
+            return "bg-gray-500";
+    }
+};
 
 export default function DashboardPage() {
     const { data: session } = useSession();
@@ -70,10 +111,10 @@ export default function DashboardPage() {
             days: parseInt(timeRange),
         });
 
-    const tasks = tasksData?.data?.tasks || [];
+    const tasks: Task[] = tasksData?.data?.data?.tasks || [];
     const analytics = analyticsData?.data || {};
-    const categories = categoriesData?.data?.categories || [];
-    const courses = coursesData?.data?.courses || [];
+    const categories: Category[] = categoriesData?.data?.data?.categories || [];
+    const courses: Course[] = coursesData?.data?.data?.courses || [];
 
     // Detailed analytics data
     const dashboard = dashboardData?.data || {};
@@ -83,13 +124,13 @@ export default function DashboardPage() {
     // Calculate quick stats
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter(
-        (task) => task.status === "COMPLETED"
+        (task: Task) => task.status === "COMPLETED"
     ).length;
     const pendingTasks = tasks.filter(
-        (task) => task.status === "PENDING"
+        (task: Task) => task.status === "PENDING"
     ).length;
     const overdueTasks = tasks.filter(
-        (task) =>
+        (task: Task) =>
             task.status === "PENDING" && new Date(task.dueDate) < new Date()
     ).length;
 
@@ -99,7 +140,7 @@ export default function DashboardPage() {
     // Get recent tasks
     const recentTasks = tasks
         .sort(
-            (a, b) =>
+            (a: Task, b: Task) =>
                 new Date(b.createdAt).getTime() -
                 new Date(a.createdAt).getTime()
         )
@@ -108,41 +149,14 @@ export default function DashboardPage() {
     // Get upcoming deadlines
     const upcomingDeadlines = tasks
         .filter(
-            (task) =>
+            (task: Task) =>
                 task.status === "PENDING" && new Date(task.dueDate) > new Date()
         )
         .sort(
-            (a, b) =>
+            (a: Task, b: Task) =>
                 new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
         )
         .slice(0, 5);
-
-    // Helper functions
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case "COMPLETED":
-                return "default";
-            case "IN_PROGRESS":
-                return "secondary";
-            case "PENDING":
-                return "outline";
-            default:
-                return "outline";
-        }
-    };
-
-    const getPriorityColor = (priority: string) => {
-        switch (priority) {
-            case "HIGH":
-                return "destructive";
-            case "MEDIUM":
-                return "secondary";
-            case "LOW":
-                return "outline";
-            default:
-                return "outline";
-        }
-    };
 
     // Show loading while session is loading
     if (!session) {
@@ -186,41 +200,32 @@ export default function DashboardPage() {
                                         overview
                                     </p>
                                 </div>
-                                <div className="flex items-center space-x-4">
-                                    <div className="flex items-center space-x-2 bg-white/10 rounded-lg px-4 py-2 backdrop-blur-sm">
-                                        <span className="text-sm font-medium">
-                                            Time Range:
-                                        </span>
-                                        <Select
-                                            value={timeRange}
-                                            onValueChange={setTimeRange}
-                                        >
-                                            <SelectTrigger className="w-32 bg-transparent border-white/20 text-white">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="7">
-                                                    Last 7 days
-                                                </SelectItem>
-                                                <SelectItem value="30">
-                                                    Last 30 days
-                                                </SelectItem>
-                                                <SelectItem value="90">
-                                                    Last 90 days
-                                                </SelectItem>
-                                                <SelectItem value="365">
-                                                    Last year
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <Button
-                                        size="lg"
-                                        className="bg-white text-primary hover:bg-primary/10 shadow-lg"
+                                <div className="flex items-center space-x-2 bg-white/10 rounded-lg px-4 py-2 backdrop-blur-sm">
+                                    <span className="text-sm font-medium">
+                                        Time Range:
+                                    </span>
+                                    <Select
+                                        value={timeRange}
+                                        onValueChange={setTimeRange}
                                     >
-                                        <Plus className="mr-2 h-5 w-5" />
-                                        New Task
-                                    </Button>
+                                        <SelectTrigger className="w-32 bg-transparent border-white/20 text-white">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="7">
+                                                Last 7 days
+                                            </SelectItem>
+                                            <SelectItem value="30">
+                                                Last 30 days
+                                            </SelectItem>
+                                            <SelectItem value="90">
+                                                Last 90 days
+                                            </SelectItem>
+                                            <SelectItem value="365">
+                                                Last year
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
                         </div>
@@ -388,50 +393,58 @@ export default function DashboardPage() {
                                         </Button>
                                     </div>
                                 ) : (
-                                    recentTasks.map((task) => (
+                                    recentTasks.map((task: Task) => (
                                         <div
                                             key={task.id}
-                                            className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-slate-50 to-blue-50 border border-slate-200 hover:shadow-md transition-all duration-300"
+                                            className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-slate-50 to-red-50 border border-slate-200 hover:shadow-sm transition-all duration-200"
                                         >
-                                            <div className="flex-1">
-                                                <h3 className="font-semibold text-slate-900 mb-1">
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-semibold text-base text-slate-900 mb-1">
                                                     {task.title}
                                                 </h3>
-                                                <p className="text-sm text-slate-600 mb-3 line-clamp-2">
-                                                    {task.description}
-                                                </p>
-                                                <div className="flex items-center gap-2">
-                                                    <Badge
-                                                        variant={getStatusColor(
-                                                            task.status
-                                                        )}
-                                                        className="font-medium"
-                                                    >
-                                                        {task.status}
-                                                    </Badge>
-                                                    <Badge
-                                                        variant={getPriorityColor(
-                                                            task.priority
-                                                        )}
-                                                        className="font-medium"
-                                                    >
-                                                        {task.priority}
-                                                    </Badge>
-                                                    {task.category && (
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="font-medium"
-                                                        >
-                                                            {task.category.name}
-                                                        </Badge>
-                                                    )}
-                                                </div>
+                                                {task.description && (
+                                                    <p className="text-xs text-slate-600 line-clamp-1">
+                                                        {task.description}
+                                                    </p>
+                                                )}
                                             </div>
-                                            <div className="text-right ml-4">
-                                                <p className="text-sm font-semibold text-slate-700">
+                                            <div className="flex items-center gap-2 ml-4">
+                                                <Badge
+                                                    variant="outline"
+                                                    className={`text-xs px-1.5 py-0.5 rounded-sm border-0 ${getStatusColor(
+                                                        task.status
+                                                    )}`}
+                                                >
+                                                    <div
+                                                        className={`w-2 h-2 rounded-full ${getStatusDotColor(
+                                                            task.status
+                                                        )} mr-1.5`}
+                                                    ></div>
+                                                    {task.status}
+                                                </Badge>
+                                                <Badge
+                                                    className={`text-xs px-1.5 py-0.5 rounded ${getPriorityColor(
+                                                        task.priority
+                                                    )}`}
+                                                >
+                                                    {task.priority}
+                                                </Badge>
+                                                {task.category && (
+                                                    <span
+                                                        className="px-2 py-1 rounded text-white text-xs font-semibold"
+                                                        style={{
+                                                            backgroundColor:
+                                                                task.category
+                                                                    .color,
+                                                        }}
+                                                    >
+                                                        {task.category.name}
+                                                    </span>
+                                                )}
+                                                <span className="text-xs text-slate-500 ml-2">
                                                     Due:{" "}
                                                     {formatDate(task.dueDate)}
-                                                </p>
+                                                </span>
                                             </div>
                                         </div>
                                     ))
@@ -493,7 +506,7 @@ export default function DashboardPage() {
                                         <span className="font-bold text-slate-900">
                                             {
                                                 tasks.filter(
-                                                    (task) =>
+                                                    (task: Task) =>
                                                         task.priority === "HIGH"
                                                 ).length
                                             }
@@ -510,7 +523,7 @@ export default function DashboardPage() {
                                         </div>
                                         <span className="font-bold text-slate-900">
                                             {
-                                                tasks.filter((task) => {
+                                                tasks.filter((task: Task) => {
                                                     const dueDate = new Date(
                                                         task.dueDate
                                                     );
@@ -564,29 +577,31 @@ export default function DashboardPage() {
                                             </p>
                                         </div>
                                     ) : (
-                                        upcomingDeadlines.map((task) => (
+                                        upcomingDeadlines.map((task: Task) => (
                                             <div
                                                 key={task.id}
-                                                className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-slate-50 to-red-50 border border-slate-200 hover:shadow-sm transition-all duration-300"
+                                                className="flex items-center justify-between p-2.5 rounded-lg bg-gradient-to-r from-slate-50 to-red-50 border border-slate-200 hover:shadow-sm transition-all duration-200"
                                             >
-                                                <div className="flex-1">
-                                                    <h4 className="font-semibold text-sm text-slate-900 mb-1">
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-semibold text-base text-slate-900 mb-1">
                                                         {task.title}
                                                     </h4>
                                                     <p className="text-xs text-slate-600">
+                                                        Due:{" "}
                                                         {formatDate(
                                                             task.dueDate
                                                         )}
                                                     </p>
                                                 </div>
-                                                <Badge
-                                                    variant={getPriorityColor(
-                                                        task.priority
-                                                    )}
-                                                    className="font-medium"
-                                                >
-                                                    {task.priority}
-                                                </Badge>
+                                                <div className="flex items-center gap-2 ml-4">
+                                                    <Badge
+                                                        className={`text-xs px-1.5 py-0.5 rounded ${getPriorityColor(
+                                                            task.priority
+                                                        )}`}
+                                                    >
+                                                        {task.priority}
+                                                    </Badge>
+                                                </div>
                                             </div>
                                         ))
                                     )}

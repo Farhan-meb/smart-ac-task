@@ -49,6 +49,28 @@ export const useUpdateProfile = () => {
     });
 };
 
+export const useChangePassword = () => {
+    const { toast } = useToast();
+
+    return useMutation({
+        mutationFn: authAPI.changePassword,
+        onSuccess: () => {
+            toast({
+                title: "Success",
+                description: "Password changed successfully",
+            });
+        },
+        onError: (error: any) => {
+            toast({
+                title: "Error",
+                description:
+                    error.response?.data?.message || "Password change failed",
+                variant: "destructive",
+            });
+        },
+    });
+};
+
 // Task hooks
 export const useTasks = (params?: any) => {
     return useQuery({

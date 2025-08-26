@@ -39,6 +39,10 @@ const createTaskValidation = [
         .optional()
         .isIn(["LOW", "MEDIUM", "HIGH", "URGENT"])
         .withMessage("Priority must be LOW, MEDIUM, HIGH, or URGENT"),
+    body("status")
+        .optional()
+        .isIn(["PENDING", "IN_PROGRESS", "COMPLETED"])
+        .withMessage("Status must be PENDING, IN_PROGRESS, or COMPLETED"),
     body("dueDate")
         .optional()
         .isISO8601()

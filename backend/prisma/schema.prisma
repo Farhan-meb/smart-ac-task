@@ -19,6 +19,9 @@ model User {
   studentId String   @unique
   programme String
   university String?
+  phone     String?
+  timezone  String?  @default("UTC")
+  language  String?  @default("en")
   avatar    String?
   isActive  Boolean  @default(true)
   isVerified Boolean @default(false)

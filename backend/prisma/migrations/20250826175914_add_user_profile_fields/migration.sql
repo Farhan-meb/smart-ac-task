@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE `users` ADD COLUMN `language` VARCHAR(191) NULL DEFAULT 'en',
+    ADD COLUMN `phone` VARCHAR(191) NULL,
+    ADD COLUMN `timezone` VARCHAR(191) NULL DEFAULT 'UTC';

@@ -9,6 +9,7 @@ const {
     updateReminder,
     deleteReminder,
     markAsSent,
+    triggerDailyReminders,
 } = require("../controllers/reminderController");
 
 const router = express.Router();
@@ -44,5 +45,6 @@ router.post("/", reminderValidation, validateRequest, createReminder);
 router.put("/:id", reminderValidation, validateRequest, updateReminder);
 router.delete("/:id", deleteReminder);
 router.patch("/:id/sent", markAsSent);
+router.post("/trigger-daily", triggerDailyReminders);
 
 module.exports = router;

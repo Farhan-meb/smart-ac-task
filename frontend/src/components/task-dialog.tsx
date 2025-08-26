@@ -30,6 +30,7 @@ import {
     useCreateTask,
     useUpdateTask,
 } from "@/hooks/use-api";
+import { Category, Course } from "@/types/task";
 
 const taskSchema = Yup.object().shape({
     title: Yup.string()
@@ -84,11 +85,11 @@ export function TaskDialog({
     const { data: categoriesData } = useCategories();
     const { data: coursesData } = useCourses();
 
-    const categories =
+    const categories: Category[] =
         categoriesData?.data?.data?.categories ||
         categoriesData?.data?.categories ||
         [];
-    const courses =
+    const courses: Course[] =
         coursesData?.data?.data?.courses || coursesData?.data?.courses || [];
 
     // Debug: Check if data is loading
@@ -416,14 +417,16 @@ export function TaskDialog({
                                             <SelectItem value="none">
                                                 No Category
                                             </SelectItem>
-                                            {categories.map((category) => (
-                                                <SelectItem
-                                                    key={category.id}
-                                                    value={category.id}
-                                                >
-                                                    {category.name}
-                                                </SelectItem>
-                                            ))}
+                                            {categories.map(
+                                                (category: Category) => (
+                                                    <SelectItem
+                                                        key={category.id}
+                                                        value={category.id}
+                                                    >
+                                                        {category.name}
+                                                    </SelectItem>
+                                                )
+                                            )}
                                         </SelectContent>
                                     </Select>
                                     <ErrorMessage
@@ -458,7 +461,7 @@ export function TaskDialog({
                                             <SelectItem value="none">
                                                 No Course
                                             </SelectItem>
-                                            {courses.map((course) => (
+                                            {courses.map((course: Course) => (
                                                 <SelectItem
                                                     key={course.id}
                                                     value={course.id}

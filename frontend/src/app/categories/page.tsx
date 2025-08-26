@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { useCategories, useDeleteCategory } from "@/hooks/use-api";
 import { formatDate } from "@/lib/utils";
+import { Category } from "@/types/task";
 
 export default function CategoriesPage() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -37,7 +38,7 @@ export default function CategoriesPage() {
     const { data: categoriesData, isLoading } = useCategories();
     const deleteCategoryMutation = useDeleteCategory();
 
-    const categories =
+    const categories: Category[] =
         categoriesData?.data?.data?.categories ||
         categoriesData?.data?.categories ||
         [];
@@ -45,7 +46,7 @@ export default function CategoriesPage() {
     // Filter and sort categories (newest first)
     const filteredCategories = categories
         .filter(
-            (category) =>
+            (category: Category) =>
                 category.name
                     .toLowerCase()
                     .includes(searchTerm.toLowerCase()) ||
@@ -54,12 +55,12 @@ export default function CategoriesPage() {
                     .includes(searchTerm.toLowerCase())
         )
         .sort(
-            (a, b) =>
+            (a: Category, b: Category) =>
                 new Date(b.createdAt).getTime() -
                 new Date(a.createdAt).getTime()
         );
 
-    const handleDelete = async (category: any) => {
+    const handleDelete = async (category: Category) => {
         setCategoryToDelete(category);
         setDeleteDialogOpen(true);
     };
@@ -152,119 +153,126 @@ export default function CategoriesPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredCategories.map((category) => (
-                                    <TableRow key={category.id}>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                <div
-                                                    className="w-4 h-4 rounded-full"
-                                                    style={{
-                                                        backgroundColor:
-                                                            category.color,
-                                                    }}
-                                                ></div>
-                                                <span className="font-medium">
-                                                    {category.name}
-                                                </span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="max-w-xs">
-                                            {category.description ? (
-                                                <p className="text-sm text-gray-600 line-clamp-2">
-                                                    {category.description}
-                                                </p>
-                                            ) : (
-                                                <span className="text-gray-400 text-sm">
-                                                    No description
-                                                </span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant="outline">
-                                                {category.tasks?.length || 0}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant="outline"
-                                                className="bg-green-50 text-green-700 border-green-200"
-                                            >
-                                                {category.tasks?.filter(
-                                                    (task: any) =>
-                                                        task.status ===
-                                                        "COMPLETED"
-                                                ).length || 0}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant="outline"
-                                                className="bg-yellow-50 text-yellow-700 border-yellow-200"
-                                            >
-                                                {category.tasks?.filter(
-                                                    (task: any) =>
-                                                        task.status ===
-                                                        "PENDING"
-                                                ).length || 0}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            {category.tasks?.length > 0 ? (
+                                {filteredCategories.map(
+                                    (category: Category) => (
+                                        <TableRow key={category.id}>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <div
+                                                        className="w-4 h-4 rounded-full"
+                                                        style={{
+                                                            backgroundColor:
+                                                                category.color,
+                                                        }}
+                                                    ></div>
+                                                    <span className="font-medium">
+                                                        {category.name}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="max-w-xs">
+                                                {category.description ? (
+                                                    <p className="text-sm text-gray-600 line-clamp-2">
+                                                        {category.description}
+                                                    </p>
+                                                ) : (
+                                                    <span className="text-gray-400 text-sm">
+                                                        No description
+                                                    </span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant="outline">
+                                                    {category.tasks?.length ||
+                                                        0}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
                                                 <Badge
                                                     variant="outline"
-                                                    className="bg-blue-50 text-blue-700 border-blue-200"
+                                                    className="bg-green-50 text-green-700 border-green-200"
                                                 >
-                                                    {Math.round(
-                                                        ((category.tasks?.filter(
-                                                            (task: any) =>
-                                                                task.status ===
-                                                                "COMPLETED"
-                                                        ).length || 0) /
-                                                            category.tasks
-                                                                ?.length) *
-                                                            100
-                                                    )}
-                                                    %
+                                                    {category.tasks?.filter(
+                                                        (task: any) =>
+                                                            task.status ===
+                                                            "COMPLETED"
+                                                    ).length || 0}
                                                 </Badge>
-                                            ) : (
-                                                <span className="text-gray-400 text-sm">
-                                                    No tasks
-                                                </span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="text-sm text-gray-500">
-                                            {formatDate(category.createdAt)}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <Button
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
                                                     variant="outline"
-                                                    size="sm"
-                                                    onClick={() => {
-                                                        setSelectedCategory(
-                                                            category
-                                                        );
-                                                        setCategoryDialogOpen(
-                                                            true
-                                                        );
-                                                    }}
+                                                    className="bg-yellow-50 text-yellow-700 border-yellow-200"
                                                 >
-                                                    <Edit className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleDelete(category)
-                                                    }
-                                                    className="text-red-600 hover:text-red-700"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                                    {category.tasks?.filter(
+                                                        (task: any) =>
+                                                            task.status ===
+                                                            "PENDING"
+                                                    ).length || 0}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                {(category.tasks?.length || 0) >
+                                                0 ? (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="bg-blue-50 text-blue-700 border-blue-200"
+                                                    >
+                                                        {Math.round(
+                                                            ((category.tasks?.filter(
+                                                                (task: any) =>
+                                                                    task.status ===
+                                                                    "COMPLETED"
+                                                            ).length || 0) /
+                                                                (category.tasks
+                                                                    ?.length ||
+                                                                    0)) *
+                                                                100
+                                                        )}
+                                                        %
+                                                    </Badge>
+                                                ) : (
+                                                    <span className="text-gray-400 text-sm">
+                                                        No tasks
+                                                    </span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="text-sm text-gray-500">
+                                                {formatDate(category.createdAt)}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            setSelectedCategory(
+                                                                category
+                                                            );
+                                                            setCategoryDialogOpen(
+                                                                true
+                                                            );
+                                                        }}
+                                                    >
+                                                        <Edit className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                category
+                                                            )
+                                                        }
+                                                        className="text-red-600 hover:text-red-700"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+                                )}
                             </TableBody>
                         </Table>
                     )}

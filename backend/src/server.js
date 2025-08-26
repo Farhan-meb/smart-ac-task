@@ -8,6 +8,7 @@ require("dotenv").config();
 const { logger } = require("./utils/logger");
 const { errorHandler } = require("./middleware/errorHandler");
 const { notFound } = require("./middleware/notFound");
+const { initializeCronJobs } = require("./utils/cronService");
 
 // Import routes
 const authRoutes = require("./routes/auth");
@@ -125,6 +126,9 @@ app.listen(PORT, () => {
     logger.info(`📊 Environment: ${process.env.NODE_ENV}`);
     logger.info(`🔗 API URL: http://localhost:${PORT}/api`);
     logger.info(`🏥 Health check: http://localhost:${PORT}/health`);
+
+    // Initialize cron jobs after server starts
+    initializeCronJobs();
 });
 
 // Graceful shutdown

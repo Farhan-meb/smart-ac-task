@@ -29,7 +29,7 @@ A centralized, user-friendly platform that provides:
 
 -   **Task Management**: Create, edit, delete, and organize academic tasks
 -   **Smart Prioritization**: AI-driven task prioritization based on deadlines and importance
--   **Reminder System**: Automated notifications for upcoming deadlines
+-   **Reminder System**: Automated email notifications for upcoming deadlines
 -   **Academic Calendar**: Integration with course schedules and research milestones
 -   **Data Visualization**: Task timelines, progress charts, and productivity analytics
 -   **Resource Management**: Store and organize academic resources and references
@@ -111,17 +111,7 @@ smart-academic-task-planner/
     npm run install:all
     ```
 
-3. **Set up environment variables**
-
-    ```bash
-    # Backend (.env)
-    cp backend/.env.example backend/.env
-
-    # Frontend (.env.local)
-    cp frontend/.env.example frontend/.env.local
-    ```
-
-4. **Set up the database**
+3. **Set up the database**
 
     ```bash
     npm run db:setup
@@ -129,7 +119,7 @@ smart-academic-task-planner/
     npm run db:seed
     ```
 
-5. **Start development servers**
+4. **Start development servers**
     ```bash
     npm run dev
     ```
@@ -137,7 +127,7 @@ smart-academic-task-planner/
 The application will be available at:
 
 -   Frontend: http://localhost:3000
--   Backend API: http://localhost:5000
+-   Backend API: http://localhost:4000
 
 ## 📊 Database Schema
 
@@ -149,6 +139,46 @@ The application will be available at:
 -   **Categories**: Task categorization (Assignments, Research, etc.)
 -   **Reminders**: Notification settings and schedules
 -   **Resources**: Academic resources and references
+
+## 🔔 Reminder System
+
+### Daily Email Reminders
+
+The application features an automated email reminder system that runs daily at **10:00 AM** to help students stay on top of their academic tasks:
+
+-   **Schedule**: Automatically sends reminders every day at 10:00 AM (Asia/Dhaka timezone)
+-   **Target Tasks**: Only sends reminders for tasks due on the current day with status PENDING or IN_PROGRESS
+-   **Email Content**: Beautiful HTML emails containing:
+-   Personalized greeting with student's name
+-   List of tasks due today with priority badges, status, categories, and courses
+-   Estimated hours for each task
+-   Productivity tips and best practices
+-   **Sender**: All reminders are sent from `md.a.hafiz255@gmail.com`
+-   **Database Tracking**: All sent reminders are recorded in the database for monitoring
+
+### Manual Trigger
+
+Administrators can manually trigger daily reminders using the API endpoint:
+
+```bash
+POST /api/reminders/trigger-daily
+```
+
+### Configuration
+
+The reminder system requires Brevo API key configuration in the backend `.env` file:
+
+```env
+BREVO_API_KEY=your-brevo-api-key
+```
+
+**Benefits of Brevo:**
+
+-   **Better Deliverability**: Higher email delivery rates than Gmail
+-   **Professional Service**: Built for transactional emails
+-   **Free Tier**: 300 emails per day free
+-   **Analytics**: Track email opens and engagement
+-   **No App Password Needed**: Simple API key setup
 
 ## 🧪 Testing
 

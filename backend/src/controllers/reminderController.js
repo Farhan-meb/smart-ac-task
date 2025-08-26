@@ -1,6 +1,10 @@
 const { prisma } = require("../utils/database");
 const { AppError } = require("../middleware/errorHandler");
 const { asyncHandler } = require("../middleware/errorHandler");
+const {
+    triggerDailyReminders: triggerReminders,
+} = require("../utils/cronService");
+const { logger } = require("../utils/logger");
 
 const getReminders = asyncHandler(async (req, res, next) => {
     const reminders = await prisma.reminder.findMany({
@@ -153,6 +157,28 @@ const markAsSent = asyncHandler(async (req, res, next) => {
     });
 });
 
+const triggerDailyReminders = asyncHandler(async (req, res, next) => {
+    // Check if user is admin (you might want to add admin role check)
+    if (req.user.role !== "ADMIN") {
+        return next(
+            new AppError("Only admins can trigger daily reminders", 403)
+        );
+    }
+
+    try {
+        const results = await triggerReminders();
+
+        res.status(200).json({
+            success: true,
+            message: "Daily task reminders triggered successfully",
+            data: { results },
+        });
+    } catch (error) {
+        logger.error("Error triggering daily reminders:", error);
+        return next(new AppError("Failed to trigger daily reminders", 500));
+    }
+});
+
 module.exports = {
     getReminders,
     getReminder,
@@ -160,4 +186,5 @@ module.exports = {
     updateReminder,
     deleteReminder,
     markAsSent,
+    triggerDailyReminders,
 };

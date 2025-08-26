@@ -42,7 +42,9 @@ const registerSchema = Yup.object().shape({
     programme: Yup.string()
         .min(2, "Programme must be at least 2 characters")
         .required("Programme is required"),
-    university: Yup.string().optional(),
+    university: Yup.string()
+        .min(2, "University must be at least 2 characters")
+        .required("University is required"),
 });
 
 type RegisterFormData = {
@@ -53,7 +55,7 @@ type RegisterFormData = {
     confirmPassword: string;
     studentId: string;
     programme: string;
-    university?: string;
+    university: string;
 };
 
 export default function RegisterPage() {
@@ -280,7 +282,7 @@ export default function RegisterPage() {
                                         htmlFor="university"
                                         className="text-sm font-medium"
                                     >
-                                        University (Optional)
+                                        University *
                                     </label>
                                     <Field
                                         as={Input}

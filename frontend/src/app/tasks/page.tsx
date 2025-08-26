@@ -5,7 +5,20 @@ import { TaskColumn } from "@/components/task-column";
 import { TaskDialog } from "@/components/task-dialog";
 import { TaskFilters } from "@/components/task-filters";
 import { TaskHeader } from "@/components/task-header";
-import { useCategories, useCourses, useTasks } from "@/hooks/use-api";
+import { Button } from "@/components/ui/button";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import {
+    useCategories,
+    useCourses,
+    useDeleteTask,
+    useTasks,
+} from "@/hooks/use-api";
 import { useState } from "react";
 
 export default function TasksPage() {
@@ -23,6 +36,8 @@ export default function TasksPage() {
     const [preSelectedStatus, setPreSelectedStatus] = useState<string | null>(
         null
     );
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [taskToDelete, setTaskToDelete] = useState<any>(null);
 
     // Fetch data
     const { data: tasksData, isLoading } = useTasks();
@@ -127,6 +142,22 @@ export default function TasksPage() {
         setTaskDialogOpen(true);
     };
 
+    // Delete task mutation
+    const deleteTaskMutation = useDeleteTask();
+
+    const handleDeleteTask = (task: any) => {
+        setTaskToDelete(task);
+        setDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (taskToDelete) {
+            await deleteTaskMutation.mutateAsync(taskToDelete.id);
+            setDeleteDialogOpen(false);
+            setTaskToDelete(null);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -168,6 +199,7 @@ export default function TasksPage() {
                             (task) => task.status === "PENDING"
                         )}
                         onEditTask={handleEditTask}
+                        onDeleteTask={handleDeleteTask}
                         onAddTask={handleAddTask}
                     />
                     <TaskColumn
@@ -177,6 +209,7 @@ export default function TasksPage() {
                             (task) => task.status === "IN_PROGRESS"
                         )}
                         onEditTask={handleEditTask}
+                        onDeleteTask={handleDeleteTask}
                         onAddTask={handleAddTask}
                     />
                     <TaskColumn
@@ -186,6 +219,7 @@ export default function TasksPage() {
                             (task) => task.status === "COMPLETED"
                         )}
                         onEditTask={handleEditTask}
+                        onDeleteTask={handleDeleteTask}
                         onAddTask={handleAddTask}
                     />
                 </div>
@@ -216,6 +250,50 @@ export default function TasksPage() {
                                 ? "Try adjusting your filters or search terms"
                                 : "Create your first task to get started"}
                         </p>
+                    </div>
+                )}
+
+                {/* Delete Confirmation Dialog */}
+                {deleteDialogOpen && taskToDelete && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <Card className="w-full max-w-md mx-4">
+                            <CardHeader>
+                                <CardTitle>Delete Task</CardTitle>
+                                <CardDescription>
+                                    Are you sure you want to delete "
+                                    {taskToDelete.title}"? This action cannot be
+                                    undone.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex justify-end gap-2">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            setDeleteDialogOpen(false);
+                                            setTaskToDelete(null);
+                                        }}
+                                        disabled={deleteTaskMutation.isPending}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        variant="destructive"
+                                        onClick={confirmDelete}
+                                        disabled={deleteTaskMutation.isPending}
+                                    >
+                                        {deleteTaskMutation.isPending ? (
+                                            <>
+                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                                Deleting...
+                                            </>
+                                        ) : (
+                                            "Delete"
+                                        )}
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 )}
 

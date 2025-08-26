@@ -43,7 +43,6 @@ const registerValidation = [
         .isLength({ min: 2, max: 100 })
         .withMessage("Programme must be between 2 and 100 characters"),
     body("university")
-        .optional()
         .trim()
         .isLength({ min: 2, max: 100 })
         .withMessage("University must be between 2 and 100 characters"),

@@ -1,7 +1,7 @@
 import { Providers } from "@/components/providers";
-import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -76,7 +76,28 @@ export default function RootLayout({
             <body className={inter.className}>
                 <Providers>
                     {children}
-                    <Toaster />
+                    <Toaster
+                        position="bottom-center"
+                        toastOptions={{
+                            duration: 4000,
+                            style: {
+                                background: "#363636",
+                                color: "#fff",
+                            },
+                            success: {
+                                duration: 3000,
+                                style: {
+                                    background: "#10B981",
+                                },
+                            },
+                            error: {
+                                duration: 5000,
+                                style: {
+                                    background: "#EF4444",
+                                },
+                            },
+                        }}
+                    />
                 </Providers>
             </body>
         </html>

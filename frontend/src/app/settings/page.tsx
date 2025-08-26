@@ -16,13 +16,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { useProfile, useUpdateProfile } from "@/hooks/use-api";
+    useChangePassword,
+    useProfile,
+    useUpdateProfile,
+} from "@/hooks/use-api";
 
 const profileSchema = Yup.object().shape({
     firstName: Yup.string()
@@ -38,8 +35,6 @@ const profileSchema = Yup.object().shape({
         .min(1, "Student ID is required")
         .required("Student ID is required"),
     phone: Yup.string().optional(),
-    timezone: Yup.string().optional(),
-    language: Yup.string().optional(),
 });
 
 type ProfileFormData = {
@@ -48,8 +43,6 @@ type ProfileFormData = {
     email: string;
     studentId: string;
     phone?: string;
-    timezone?: string;
-    language?: string;
 };
 
 const passwordSchema = Yup.object().shape({
@@ -58,6 +51,10 @@ const passwordSchema = Yup.object().shape({
         .required("Current password is required"),
     newPassword: Yup.string()
         .min(8, "Password must be at least 8 characters")
+        .matches(
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+            "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+        )
         .required("New password is required"),
     confirmPassword: Yup.string()
         .oneOf([Yup.ref("newPassword")], "Passwords must match")
@@ -78,8 +75,9 @@ export default function SettingsPage() {
     // Fetch user profile
     const { data: profileData, isLoading } = useProfile();
     const updateProfileMutation = useUpdateProfile();
+    const changePasswordMutation = useChangePassword();
 
-    const profile = profileData?.data?.user;
+    const profile = profileData?.data?.data?.user || profileData?.data?.user;
 
     const profileInitialValues: ProfileFormData = {
         firstName: profile?.firstName || "",
@@ -87,8 +85,6 @@ export default function SettingsPage() {
         email: profile?.email || "",
         studentId: profile?.studentId || "",
         phone: profile?.phone || "",
-        timezone: profile?.timezone || "UTC",
-        language: profile?.language || "en",
     };
 
     const passwordInitialValues: PasswordFormData = {
@@ -114,10 +110,17 @@ export default function SettingsPage() {
         values: PasswordFormData,
         { setSubmitting, resetForm }: any
     ) => {
-        // TODO: Implement password change functionality
-        console.log("Password change:", values);
-        setSubmitting(false);
-        resetForm();
+        try {
+            await changePasswordMutation.mutateAsync({
+                currentPassword: values.currentPassword,
+                newPassword: values.newPassword,
+            });
+            resetForm();
+        } catch (error) {
+            // Error is handled by the mutation hook
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     if (isLoading) {
@@ -313,118 +316,6 @@ export default function SettingsPage() {
                                             />
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <label
-                                                    htmlFor="timezone"
-                                                    className="text-sm font-medium"
-                                                >
-                                                    Timezone
-                                                </label>
-                                                <Field
-                                                    as="select"
-                                                    id="timezone"
-                                                    name="timezone"
-                                                    onChange={handleChange}
-                                                    onBlur={handleBlur}
-                                                    className={
-                                                        errors.timezone &&
-                                                        touched.timezone
-                                                            ? "border-red-500"
-                                                            : ""
-                                                    }
-                                                >
-                                                    <option value="UTC">
-                                                        UTC
-                                                    </option>
-                                                    <option value="America/New_York">
-                                                        Eastern Time
-                                                    </option>
-                                                    <option value="America/Chicago">
-                                                        Central Time
-                                                    </option>
-                                                    <option value="America/Denver">
-                                                        Mountain Time
-                                                    </option>
-                                                    <option value="America/Los_Angeles">
-                                                        Pacific Time
-                                                    </option>
-                                                    <option value="Europe/London">
-                                                        London
-                                                    </option>
-                                                    <option value="Europe/Paris">
-                                                        Paris
-                                                    </option>
-                                                    <option value="Asia/Tokyo">
-                                                        Tokyo
-                                                    </option>
-                                                </Field>
-                                                <ErrorMessage
-                                                    name="timezone"
-                                                    component="p"
-                                                    className="text-sm text-red-500"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <label
-                                                    htmlFor="language"
-                                                    className="text-sm font-medium"
-                                                >
-                                                    Language
-                                                </label>
-                                                <Field
-                                                    as="select"
-                                                    id="language"
-                                                    name="language"
-                                                    onChange={handleChange}
-                                                    onBlur={handleBlur}
-                                                    className={
-                                                        errors.language &&
-                                                        touched.language
-                                                            ? "border-red-500"
-                                                            : ""
-                                                    }
-                                                >
-                                                    <option value="en">
-                                                        English
-                                                    </option>
-                                                    <option value="es">
-                                                        Spanish
-                                                    </option>
-                                                    <option value="fr">
-                                                        French
-                                                    </option>
-                                                    <option value="de">
-                                                        German
-                                                    </option>
-                                                    <option value="it">
-                                                        Italian
-                                                    </option>
-                                                    <option value="pt">
-                                                        Portuguese
-                                                    </option>
-                                                    <option value="ru">
-                                                        Russian
-                                                    </option>
-                                                    <option value="zh">
-                                                        Chinese
-                                                    </option>
-                                                    <option value="ja">
-                                                        Japanese
-                                                    </option>
-                                                    <option value="ko">
-                                                        Korean
-                                                    </option>
-                                                </Field>
-                                                <ErrorMessage
-                                                    name="language"
-                                                    component="p"
-                                                    className="text-sm text-red-500"
-                                                />
-                                            </div>
-                                        </div>
-
                                         <Button
                                             type="submit"
                                             disabled={
@@ -571,7 +462,9 @@ export default function SettingsPage() {
                                             </div>
                                             <p className="text-sm text-gray-500">
                                                 Password must be at least 8
-                                                characters long
+                                                characters long and contain
+                                                uppercase, lowercase, number,
+                                                and special character
                                             </p>
                                             <ErrorMessage
                                                 name="newPassword"
@@ -633,9 +526,13 @@ export default function SettingsPage() {
                                         <Button
                                             type="submit"
                                             variant="outline"
-                                            disabled={isSubmitting}
+                                            disabled={
+                                                isSubmitting ||
+                                                changePasswordMutation.isPending
+                                            }
                                         >
-                                            {isSubmitting ? (
+                                            {isSubmitting ||
+                                            changePasswordMutation.isPending ? (
                                                 <>
                                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                                     Changing Password...
@@ -650,96 +547,6 @@ export default function SettingsPage() {
                         </CardContent>
                     </Card>
                 </div>
-
-                {/* Notification Settings */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Notification Preferences</CardTitle>
-                        <CardDescription>
-                            Configure how you want to receive notifications
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h4 className="font-medium">
-                                        Email Notifications
-                                    </h4>
-                                    <p className="text-sm text-gray-600">
-                                        Receive notifications via email
-                                    </p>
-                                </div>
-                                <Select defaultValue="all">
-                                    <SelectTrigger className="w-32">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All</SelectItem>
-                                        <SelectItem value="important">
-                                            Important Only
-                                        </SelectItem>
-                                        <SelectItem value="none">
-                                            None
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h4 className="font-medium">
-                                        Task Reminders
-                                    </h4>
-                                    <p className="text-sm text-gray-600">
-                                        Get reminded about upcoming deadlines
-                                    </p>
-                                </div>
-                                <Select defaultValue="1">
-                                    <SelectTrigger className="w-32">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="0">None</SelectItem>
-                                        <SelectItem value="1">
-                                            1 day before
-                                        </SelectItem>
-                                        <SelectItem value="3">
-                                            3 days before
-                                        </SelectItem>
-                                        <SelectItem value="7">
-                                            1 week before
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h4 className="font-medium">
-                                        Weekly Reports
-                                    </h4>
-                                    <p className="text-sm text-gray-600">
-                                        Receive weekly progress summaries
-                                    </p>
-                                </div>
-                                <Select defaultValue="enabled">
-                                    <SelectTrigger className="w-32">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="enabled">
-                                            Enabled
-                                        </SelectItem>
-                                        <SelectItem value="disabled">
-                                            Disabled
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
         </AppLayout>
     );

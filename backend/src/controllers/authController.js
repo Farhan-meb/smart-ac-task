@@ -199,6 +199,9 @@ const getMe = asyncHandler(async (req, res, next) => {
             studentId: true,
             programme: true,
             university: true,
+            phone: true,
+            timezone: true,
+            language: true,
             avatar: true,
             role: true,
             isActive: true,
@@ -218,15 +221,31 @@ const getMe = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/auth/profile
 // @access  Private
 const updateProfile = asyncHandler(async (req, res, next) => {
-    const { firstName, lastName, university } = req.body;
+    const {
+        firstName,
+        lastName,
+        email,
+        studentId,
+        phone,
+        timezone,
+        language,
+        university,
+    } = req.body;
+
+    // Build update data object with only provided fields
+    const updateData = {};
+    if (firstName !== undefined) updateData.firstName = firstName;
+    if (lastName !== undefined) updateData.lastName = lastName;
+    if (email !== undefined) updateData.email = email;
+    if (studentId !== undefined) updateData.studentId = studentId;
+    if (phone !== undefined) updateData.phone = phone;
+    if (timezone !== undefined) updateData.timezone = timezone;
+    if (language !== undefined) updateData.language = language;
+    if (university !== undefined) updateData.university = university;
 
     const updatedUser = await prisma.user.update({
         where: { id: req.user.id },
-        data: {
-            firstName,
-            lastName,
-            university,
-        },
+        data: updateData,
         select: {
             id: true,
             email: true,
@@ -235,6 +254,9 @@ const updateProfile = asyncHandler(async (req, res, next) => {
             studentId: true,
             programme: true,
             university: true,
+            phone: true,
+            timezone: true,
+            language: true,
             avatar: true,
             role: true,
             isActive: true,

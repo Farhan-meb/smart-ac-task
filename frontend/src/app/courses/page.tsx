@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { useCourses, useDeleteCourse } from "@/hooks/use-api";
 import { formatDate } from "@/lib/utils";
+import { Course } from "@/types/task";
 
 export default function CoursesPage() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -37,26 +38,26 @@ export default function CoursesPage() {
     const { data: coursesData, isLoading } = useCourses();
     const deleteCourseMutation = useDeleteCourse();
 
-    const courses = coursesData?.data?.data?.courses || [];
+    const courses: Course[] = coursesData?.data?.data?.courses || [];
 
     // Filter and sort courses (newest first)
     const filteredCourses = courses
         .filter(
-            (course) =>
+            (course: Course) =>
                 course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                course.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 (course.description &&
                     course.description
                         .toLowerCase()
                         .includes(searchTerm.toLowerCase()))
         )
         .sort(
-            (a, b) =>
+            (a: Course, b: Course) =>
                 new Date(b.createdAt).getTime() -
                 new Date(a.createdAt).getTime()
         );
 
-    const handleDelete = async (course: any) => {
+    const handleDelete = async (course: Course) => {
         setCourseToDelete(course);
         setDeleteDialogOpen(true);
     };
@@ -149,7 +150,7 @@ export default function CoursesPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredCourses.map((course) => (
+                                {filteredCourses.map((course: Course) => (
                                     <TableRow key={course.id}>
                                         <TableCell className="font-medium">
                                             {course.code}

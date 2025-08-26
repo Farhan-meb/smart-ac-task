@@ -136,7 +136,7 @@ export function Navigation() {
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-between px-3 py-3 rounded-xl bg-white shadow-sm border border-slate-200 hover:bg-slate-50"
+                                    className="w-full justify-between px-3  rounded-xl bg-transparent shadow-sm border border-slate-200 hover:bg-slate-50 border-none"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary shadow-md">

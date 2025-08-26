@@ -10,6 +10,7 @@ interface TaskColumnProps {
     status: string;
     tasks: Task[];
     onEditTask: (task: Task) => void;
+    onDeleteTask: (task: Task) => void;
     onAddTask: (status: string) => void;
 }
 
@@ -18,6 +19,7 @@ export const TaskColumn: React.FC<TaskColumnProps> = ({
     status,
     tasks,
     onEditTask,
+    onDeleteTask,
     onAddTask,
 }) => {
     const getStatusBadgeStyle = (status: string) => {
@@ -90,6 +92,7 @@ export const TaskColumn: React.FC<TaskColumnProps> = ({
                             key={task.id}
                             task={task}
                             onEdit={onEditTask}
+                            onDelete={onDeleteTask}
                         />
                     ))
                 )}
